@@ -33,6 +33,9 @@ export default class AudioProcessor {
     this.tempTimeArrayR = new Int8Array(this.fftSize);
     this.timeArrayL = new Int8Array(this.numSamps);
     this.timeArrayR = new Int8Array(this.numSamps);
+    this.oldSample = null;
+    this.oldSampleL = null;
+    this.oldSampleR = null;
   }
 
   sampleAudio() {
@@ -50,6 +53,11 @@ export default class AudioProcessor {
   }
 
   processAudio() {
+    if (!this.oldSample) {
+      this.oldSample = new Int8Array(this.fftSize);
+      this.oldSampleL = new Int8Array(this.fftSize);
+      this.oldSampleR = new Int8Array(this.fftSize);
+    }
     for (let i = 0, j = 0, lastIdx = 0; i < this.fftSize; i++) {
       this.timeArray[i] = this.timeByteArray[i] - 128;
       this.timeByteArraySignedL[i] = this.timeByteArrayL[i] - 128;
@@ -62,11 +70,6 @@ export default class AudioProcessor {
         j += 1;
       }
       lastIdx = i;
-    }
-    if (!this.oldSample) {
-      this.oldSample = new Int8Array(this.fftSize);
-      this.oldSampleL = new Int8Array(this.fftSize);
-      this.oldSampleR = new Int8Array(this.fftSize);
     }
     this.freqArray = this.sdft.timeToFrequencyDomainSDFT(this.timeArray, this.oldSample);
     this.freqArrayL = this.sdft.timeToFrequencyDomainSDFT(this.timeByteArraySignedL, this.oldSampleL);
